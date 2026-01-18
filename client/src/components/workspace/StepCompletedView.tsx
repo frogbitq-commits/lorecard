@@ -12,6 +12,9 @@ import {
   Pagination,
   TextInput,
   Center,
+  Box,
+  Card,
+  Badge,
 } from '@mantine/core';
 import { IconAlertCircle, IconDownload, IconPencil, IconTrash, IconSearch } from '@tabler/icons-react';
 import { useProjectEntries } from '../../hooks/useProjectEntries';
@@ -30,6 +33,59 @@ interface StepCompletedViewProps {
 
 const PAGE_SIZE = 50;
 const URL_PARAM_KEY = 'entries_page';
+
+function EntryCard({
+  entry,
+  onEdit,
+  onDelete,
+  isDeleting,
+}: {
+  entry: LorebookEntry;
+  onEdit: (entry: LorebookEntry) => void;
+  onDelete: (entryId: string, entryTitle: string) => void;
+  isDeleting: boolean;
+}) {
+  return (
+    <Card withBorder p="sm">
+      <Group justify="space-between" mb="xs" wrap="nowrap">
+        <Text fw={500} truncate style={{ flex: 1 }}>
+          {entry.title}
+        </Text>
+        <Group gap="xs" wrap="nowrap">
+          <ActionIcon variant="subtle" color="blue" onClick={() => onEdit(entry)} size="sm">
+            <IconPencil size={16} />
+          </ActionIcon>
+          <ActionIcon
+            variant="subtle"
+            color="red"
+            onClick={() => onDelete(entry.id, entry.title)}
+            loading={isDeleting}
+            size="sm"
+          >
+            <IconTrash size={16} />
+          </ActionIcon>
+        </Group>
+      </Group>
+
+      <Group gap={4} mb="xs" wrap="wrap">
+        {entry.keywords.slice(0, 3).map((keyword, idx) => (
+          <Badge key={idx} variant="light" size="xs">
+            {keyword}
+          </Badge>
+        ))}
+        {entry.keywords.length > 3 && (
+          <Badge variant="light" size="xs" color="gray">
+            +{entry.keywords.length - 3}
+          </Badge>
+        )}
+      </Group>
+
+      <Text size="sm" c="dimmed" lineClamp={2}>
+        {entry.content}
+      </Text>
+    </Card>
+  );
+}
 
 export function StepCompletedView({ project }: StepCompletedViewProps) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -185,47 +241,71 @@ export function StepCompletedView({ project }: StepCompletedViewProps) {
           </Center>
         ) : (
           <>
-            <Table striped highlightOnHover withTableBorder withColumnBorders>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>Title</Table.Th>
-                  <Table.Th>Keywords</Table.Th>
-                  <Table.Th>Content Snippet</Table.Th>
-                  <Table.Th>Actions</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
-                {entries.map((entry) => (
-                  <Table.Tr key={entry.id}>
-                    <Table.Td>{entry.title}</Table.Td>
-                    <Table.Td>{entry.keywords.join(', ')}</Table.Td>
-                    <Table.Td>
-                      <Text lineClamp={2}>{entry.content}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Group gap="xs" justify="center">
-                        <ActionIcon variant="subtle" color="blue" onClick={() => handleOpenEditModal(entry)}>
-                          <IconPencil size={16} />
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          onClick={() => openDeleteModal(entry.id, entry.title)}
-                          loading={deleteEntryMutation.isPending && deleteEntryMutation.variables === entry.id}
-                        >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      </Group>
-                    </Table.Td>
+            {/* Mobile card view */}
+            <Box hiddenFrom="sm">
+              {entries.length > 0 ? (
+                <Stack gap="sm">
+                  {entries.map((entry) => (
+                    <EntryCard
+                      key={entry.id}
+                      entry={entry}
+                      onEdit={handleOpenEditModal}
+                      onDelete={openDeleteModal}
+                      isDeleting={deleteEntryMutation.isPending && deleteEntryMutation.variables === entry.id}
+                    />
+                  ))}
+                </Stack>
+              ) : (
+                <Text c="dimmed" ta="center" p="md">
+                  {debouncedFilterText ? 'No entries match your search.' : 'No entries were generated.'}
+                </Text>
+              )}
+            </Box>
+
+            {/* Desktop table view */}
+            <Box visibleFrom="sm">
+              <Table striped highlightOnHover withTableBorder withColumnBorders>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Title</Table.Th>
+                    <Table.Th>Keywords</Table.Th>
+                    <Table.Th>Content Snippet</Table.Th>
+                    <Table.Th>Actions</Table.Th>
                   </Table.Tr>
-                ))}
-              </Table.Tbody>
-            </Table>
-            {totalItems === 0 && (
-              <Text c="dimmed" ta="center" p="md">
-                {debouncedFilterText ? 'No entries match your search.' : 'No entries were generated.'}
-              </Text>
-            )}
+                </Table.Thead>
+                <Table.Tbody>
+                  {entries.map((entry) => (
+                    <Table.Tr key={entry.id}>
+                      <Table.Td>{entry.title}</Table.Td>
+                      <Table.Td>{entry.keywords.join(', ')}</Table.Td>
+                      <Table.Td>
+                        <Text lineClamp={2}>{entry.content}</Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Group gap="xs" justify="center">
+                          <ActionIcon variant="subtle" color="blue" onClick={() => handleOpenEditModal(entry)}>
+                            <IconPencil size={16} />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() => openDeleteModal(entry.id, entry.title)}
+                            loading={deleteEntryMutation.isPending && deleteEntryMutation.variables === entry.id}
+                          >
+                            <IconTrash size={16} />
+                          </ActionIcon>
+                        </Group>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+              {totalItems === 0 && (
+                <Text c="dimmed" ta="center" p="md">
+                  {debouncedFilterText ? 'No entries match your search.' : 'No entries were generated.'}
+                </Text>
+              )}
+            </Box>
 
             {totalPages > 1 && (
               <Group justify="center" mt="md">

@@ -12,6 +12,8 @@ import {
   Checkbox,
   Modal,
   Textarea,
+  Box,
+  Card,
 } from '@mantine/core';
 import { useProcessProjectEntriesJob } from '../../hooks/useJobMutations';
 import { useLatestJob } from '../../hooks/useProjectJobs';
@@ -41,6 +43,42 @@ const statusColors: Record<string, string> = {
   failed: 'red',
   skipped: 'yellow',
 };
+
+interface Link {
+  id: string;
+  url: string;
+  status: string;
+  skip_reason?: string;
+  error_message?: string;
+}
+
+function LinkCard({
+  link,
+  isSelected,
+  onSelect,
+}: {
+  link: Link;
+  isSelected: boolean;
+  onSelect: (checked: boolean) => void;
+}) {
+  return (
+    <Card withBorder p="sm">
+      <Group justify="space-between" wrap="nowrap" mb="xs">
+        <Group gap="xs" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
+          <Checkbox checked={isSelected} onChange={(e) => onSelect(e.currentTarget.checked)} />
+          <Tooltip label={link.skip_reason || link.error_message} disabled={!link.skip_reason && !link.error_message}>
+            <Badge color={statusColors[link.status]} variant="light" size="sm">
+              {link.status}
+            </Badge>
+          </Tooltip>
+        </Group>
+      </Group>
+      <Text size="sm" truncate c="dimmed">
+        {link.url}
+      </Text>
+    </Card>
+  );
+}
 
 function AddLinksModal({
   opened,
@@ -286,54 +324,84 @@ export function StepProcessEntries({ project }: StepProps) {
 
         {totalItems > 0 && (
           <>
-            <Table mt="md" striped highlightOnHover withTableBorder>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th style={{ width: 40 }}>
-                    <Checkbox
-                      checked={selectedLinkIds.length === links.length && links.length > 0}
-                      indeterminate={selectedLinkIds.length > 0 && selectedLinkIds.length < links.length}
-                      onChange={handleSelectAll}
-                    />
-                  </Table.Th>
-                  <Table.Th>Link URL</Table.Th>
-                  <Table.Th>Status</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>
+            {/* Mobile card view */}
+            <Box hiddenFrom="sm" mt="md">
+              <Group mb="sm" gap="xs">
+                <Checkbox
+                  checked={selectedLinkIds.length === links.length && links.length > 0}
+                  indeterminate={selectedLinkIds.length > 0 && selectedLinkIds.length < links.length}
+                  onChange={handleSelectAll}
+                  label="Select all"
+                />
+              </Group>
+              <Stack gap="sm">
                 {links.map((link) => (
-                  <Table.Tr key={link.id}>
-                    <Table.Td>
-                      <Checkbox
-                        checked={selectedLinkIds.includes(link.id)}
-                        onChange={(event) =>
-                          setSelectedLinkIds(
-                            event.currentTarget.checked
-                              ? [...selectedLinkIds, link.id]
-                              : selectedLinkIds.filter((id) => id !== link.id)
-                          )
-                        }
-                      />
-                    </Table.Td>
-                    <Table.Td>
-                      <Text truncate>{link.url}</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Tooltip
-                        label={link.skip_reason || link.error_message}
-                        disabled={!link.skip_reason && !link.error_message}
-                        multiline
-                        w={220}
-                      >
-                        <Badge color={statusColors[link.status]} variant="light">
-                          {link.status}
-                        </Badge>
-                      </Tooltip>
-                    </Table.Td>
-                  </Table.Tr>
+                  <LinkCard
+                    key={link.id}
+                    link={link}
+                    isSelected={selectedLinkIds.includes(link.id)}
+                    onSelect={(checked) =>
+                      setSelectedLinkIds(
+                        checked ? [...selectedLinkIds, link.id] : selectedLinkIds.filter((id) => id !== link.id)
+                      )
+                    }
+                  />
                 ))}
-              </Table.Tbody>
-            </Table>
+              </Stack>
+            </Box>
+
+            {/* Desktop table view */}
+            <Box visibleFrom="sm">
+              <Table mt="md" striped highlightOnHover withTableBorder>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th style={{ width: 40 }}>
+                      <Checkbox
+                        checked={selectedLinkIds.length === links.length && links.length > 0}
+                        indeterminate={selectedLinkIds.length > 0 && selectedLinkIds.length < links.length}
+                        onChange={handleSelectAll}
+                      />
+                    </Table.Th>
+                    <Table.Th>Link URL</Table.Th>
+                    <Table.Th>Status</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {links.map((link) => (
+                    <Table.Tr key={link.id}>
+                      <Table.Td>
+                        <Checkbox
+                          checked={selectedLinkIds.includes(link.id)}
+                          onChange={(event) =>
+                            setSelectedLinkIds(
+                              event.currentTarget.checked
+                                ? [...selectedLinkIds, link.id]
+                                : selectedLinkIds.filter((id) => id !== link.id)
+                            )
+                          }
+                        />
+                      </Table.Td>
+                      <Table.Td>
+                        <Text truncate>{link.url}</Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Tooltip
+                          label={link.skip_reason || link.error_message}
+                          disabled={!link.skip_reason && !link.error_message}
+                          multiline
+                          w={220}
+                        >
+                          <Badge color={statusColors[link.status]} variant="light">
+                            {link.status}
+                          </Badge>
+                        </Tooltip>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </Box>
+
             {totalPages > 1 && (
               <Group justify="center" mt="md">
                 <Pagination value={activePage} onChange={handlePageChange} total={totalPages} />
