@@ -1,4 +1,4 @@
-import { Modal, TextInput, Button, Group, Stack, Text, NumberInput, Textarea, Collapse, Alert } from '@mantine/core';
+import { Modal, TextInput, Button, Group, Stack, Text, NumberInput, Textarea, Collapse, Alert, SimpleGrid } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useEffect, useState } from 'react';
 import type { ProjectSource, TestSelectorsResult, ProjectType } from '../../types';
@@ -9,6 +9,7 @@ import {
 } from '../../hooks/useProjectSources';
 import { useDisclosure } from '@mantine/hooks';
 import { IconAlertCircle } from '@tabler/icons-react';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 interface ProjectSourceModalProps {
   opened: boolean;
@@ -29,6 +30,7 @@ interface SourceFormValues {
 
 export function ProjectSourceModal({ opened, onClose, projectId, source, projectType }: ProjectSourceModalProps) {
   const isEditMode = !!source;
+  const isMobile = useIsMobile();
   const createSourceMutation = useCreateProjectSource(projectId);
   const updateSourceMutation = useUpdateProjectSource(projectId);
   const testSelectorsMutation = useTestProjectSourceSelectors(projectId);
@@ -126,6 +128,7 @@ export function ProjectSourceModal({ opened, onClose, projectId, source, project
       title={<Text fw={700}>{isEditMode ? 'Edit Source' : 'Add New Source'}</Text>}
       size="lg"
       centered
+      fullScreen={isMobile}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
@@ -142,7 +145,7 @@ export function ProjectSourceModal({ opened, onClose, projectId, source, project
 
           {isLorebookProject && (
             <>
-              <Group grow>
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
                 <NumberInput
                   label="Max Pages to Crawl"
                   description="Pagination limit per source. Set to 1 to disable."
@@ -159,17 +162,14 @@ export function ProjectSourceModal({ opened, onClose, projectId, source, project
                   max={5}
                   {...form.getInputProps('max_crawl_depth')}
                 />
-              </Group>
-              <Group grow>
-                <Textarea
-                  w={'100%'}
-                  label="URL Exclusion Patterns"
-                  description="URLs containing any of these patterns (one per line) will be ignored during crawling."
-                  autosize
-                  minRows={3}
-                  {...form.getInputProps('url_exclusion_patterns')}
-                />
-              </Group>
+              </SimpleGrid>
+              <Textarea
+                label="URL Exclusion Patterns"
+                description="URLs containing any of these patterns (one per line) will be ignored during crawling."
+                autosize
+                minRows={3}
+                {...form.getInputProps('url_exclusion_patterns')}
+              />
 
               {isEditMode && (
                 <>

@@ -134,7 +134,7 @@ export function ProjectDetailPage() {
             <Title order={1}>{project.name}</Title>
             <Text c="dimmed">ID: {project.id}</Text>
           </div>
-          <Group>
+          <Group wrap="wrap">
             <Button variant="outline" leftSection={<IconFileText size={16} />} onClick={openLogsModal}>
               View API Logs
             </Button>

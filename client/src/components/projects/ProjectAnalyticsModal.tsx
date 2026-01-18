@@ -15,6 +15,7 @@ import {
 import { IconAlertCircle, IconInfoCircle } from '@tabler/icons-react';
 import { useProjectAnalytics } from '../../hooks/useProjectAnalytics';
 import type { JobStatus, LinkStatus } from '../../types';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 interface ProjectAnalyticsModalProps {
   opened: boolean;
@@ -51,11 +52,12 @@ const jobStatusColors: Record<JobStatus, string> = {
 };
 
 export function ProjectAnalyticsModal({ opened, onClose, projectId }: ProjectAnalyticsModalProps) {
+  const isMobile = useIsMobile();
   const { data, isLoading, isError, error } = useProjectAnalytics(projectId);
   const analytics = data?.data;
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Project Analytics" size="xl">
+    <Modal opened={opened} onClose={onClose} title="Project Analytics" size="xl" fullScreen={isMobile}>
       {isLoading && <Loader />}
       {isError && (
         <Alert icon={<IconAlertCircle size="1rem" />} title="Error!" color="red">

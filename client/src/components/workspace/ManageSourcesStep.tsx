@@ -73,7 +73,7 @@ const SourceTreeItem = memo(
 
     return (
       <Box>
-        <Group justify="space-between" wrap="nowrap" py={4}>
+        <Group justify="space-between" py={4}>
           <Group gap="xs" wrap="nowrap">
             <Checkbox checked={isSelected} onChange={(e) => onToggleSelect(node.id, e.currentTarget.checked)} />
             {node.children.length > 0 && (
@@ -277,7 +277,7 @@ export function ManageSourcesStep({ project }: StepProps) {
           <Button onClick={handleOpenCreateModal}>Add New Source</Button>
         </Group>
 
-        <Group>
+        <Group wrap="wrap">
           <Button
             leftSection={<IconPlayerPlay size={14} />}
             disabled={selectedSourceIds.length === 0 || isAnyCrawlJobActive}

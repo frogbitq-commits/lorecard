@@ -14,6 +14,7 @@ import {
   Tooltip,
   Slider,
   SegmentedControl,
+  SimpleGrid,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useCreateProject, useUpdateProject } from '../../hooks/useProjectMutations';
@@ -26,6 +27,7 @@ import { useCredentials } from '../../hooks/useCredentials';
 import { useDisclosure } from '@mantine/hooks';
 import { IconBook, IconPlus, IconRefresh, IconUser } from '@tabler/icons-react';
 import { CredentialModal } from '../credentials/CredentialModal';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 interface ProjectModalProps {
   opened: boolean;
@@ -44,6 +46,7 @@ const slugify = (text: string) =>
 
 export function ProjectModal({ opened, onClose, project }: ProjectModalProps) {
   const isEditMode = !!project;
+  const isMobile = useIsMobile();
   const createProjectMutation = useCreateProject();
   const updateProjectMutation = useUpdateProject();
 
@@ -252,6 +255,7 @@ export function ProjectModal({ opened, onClose, project }: ProjectModalProps) {
         title={<Text fw={700}>{isEditMode ? 'Edit Project' : 'Create New Project'}</Text>}
         size="xl"
         centered
+        fullScreen={isMobile}
       >
         <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack gap="md">
@@ -313,7 +317,7 @@ export function ProjectModal({ opened, onClose, project }: ProjectModalProps) {
               minRows={2}
             />
 
-            <Group grow>
+            <SimpleGrid cols={{ base: 1, sm: 2 }}>
               <Select
                 withAsterisk
                 label={credentialLabel}
@@ -345,7 +349,7 @@ export function ProjectModal({ opened, onClose, project }: ProjectModalProps) {
                   {...form.getInputProps('model_name')}
                 />
               )}
-            </Group>
+            </SimpleGrid>
 
             <Stack gap={4}>
               <Text size="sm" fw={500}>
