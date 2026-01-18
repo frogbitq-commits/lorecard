@@ -52,16 +52,10 @@ function EntryCard({
           {entry.title}
         </Text>
         <Group gap="xs" wrap="nowrap">
-          <ActionIcon variant="subtle" color="blue" onClick={() => onEdit(entry)} size="sm">
+          <ActionIcon variant="subtle" color="blue" onClick={() => onEdit(entry)}>
             <IconPencil size={16} />
           </ActionIcon>
-          <ActionIcon
-            variant="subtle"
-            color="red"
-            onClick={() => onDelete(entry.id, entry.title)}
-            loading={isDeleting}
-            size="sm"
-          >
+          <ActionIcon variant="subtle" color="red" onClick={() => onDelete(entry.id, entry.title)} loading={isDeleting}>
             <IconTrash size={16} />
           </ActionIcon>
         </Group>
