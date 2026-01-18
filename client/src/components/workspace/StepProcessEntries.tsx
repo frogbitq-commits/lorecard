@@ -248,7 +248,7 @@ export function StepProcessEntries({ project }: StepProps) {
           links to reprocess or delete.
         </Text>
 
-        <Group>
+        <Group wrap="wrap">
           <Button
             onClick={handleStartAll}
             loading={startGeneration.isPending || isJobActive || isFetchingCount}

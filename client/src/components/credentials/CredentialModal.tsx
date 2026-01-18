@@ -20,6 +20,7 @@ import type { Credential, CreateCredentialPayload, ModelInfo } from '../../types
 import { useFetchProviderModels, useTestCredential } from '../../hooks/useProviderMutations';
 import { notifications } from '@mantine/notifications';
 import { IconRefresh } from '@tabler/icons-react';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 interface CredentialModalProps {
   opened: boolean;
@@ -30,6 +31,7 @@ interface CredentialModalProps {
 
 export function CredentialModal({ opened, onClose, credential, onSuccess }: CredentialModalProps) {
   const isEditMode = !!credential;
+  const isMobile = useIsMobile();
   const createCredentialMutation = useCreateCredential();
   const updateCredentialMutation = useUpdateCredential();
   const testCredentialMutation = useTestCredential();
@@ -179,6 +181,7 @@ export function CredentialModal({ opened, onClose, credential, onSuccess }: Cred
       size="lg"
       centered
       zIndex={1001}
+      fullScreen={isMobile}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
@@ -240,7 +243,7 @@ export function CredentialModal({ opened, onClose, credential, onSuccess }: Cred
                 {...form.getInputProps('values.api_key')}
               />
 
-              <Group justify="space-between" align="flex-end" wrap="nowrap">
+              <Group justify="space-between" align="flex-end" wrap="wrap" gap="sm">
                 {isOaiCompatible ? (
                   <TextInput
                     label="Test Model Name"

@@ -145,9 +145,9 @@ export function CharacterEditor({ project, selectedSourceIds }: CharacterEditorP
       />
       <form onSubmit={form.onSubmit((values) => updateCardMutation.mutate({ projectId: project.id, data: values }))}>
         <Stack>
-          <Group justify="space-between">
+          <Group justify="space-between" wrap="wrap">
             <Title order={4}>Character Card</Title>
-            <Group>
+            <Group wrap="wrap">
               <Button
                 leftSection={<IconPlayerPlay size={16} />}
                 onClick={() =>

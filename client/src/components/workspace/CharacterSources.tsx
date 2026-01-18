@@ -109,7 +109,7 @@ export function CharacterSources({ project, selectedSourceIds, setSelectedSource
               {sources && sources.length > 0 ? (
                 sources.map((source) => (
                   <Paper withBorder p="xs" key={source.id} radius="sm">
-                    <Group justify="space-between" wrap="nowrap">
+                    <Group justify="space-between">
                       <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
                         <Checkbox
                           checked={selectedSourceIds.includes(source.id)}

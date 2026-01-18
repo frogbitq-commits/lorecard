@@ -13,11 +13,13 @@ import {
   Code,
   Stack,
   Box,
+  ScrollArea,
 } from '@mantine/core';
 import { IconAlertCircle, IconCircleCheck, IconCircleX, IconChevronRight } from '@tabler/icons-react';
 import { useProjectApiRequestLogs } from '../../hooks/useProjectApiRequestLogs';
 import { formatDate } from '../../utils/formatDate';
 import type { ApiRequestLog } from '../../types';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 interface ApiRequestLogModalProps {
   opened: boolean;
@@ -87,6 +89,7 @@ function LogRow({ log }: { log: ApiRequestLog }) {
 
 export function ApiRequestLogModal({ opened, onClose, projectId }: ApiRequestLogModalProps) {
   const [activePage, setPage] = useState(1);
+  const isMobile = useIsMobile();
   const { data, isLoading, isError, error } = useProjectApiRequestLogs(projectId, {
     page: activePage,
     pageSize: PAGE_SIZE,
@@ -97,7 +100,7 @@ export function ApiRequestLogModal({ opened, onClose, projectId }: ApiRequestLog
   const totalPages = Math.ceil(totalItems / PAGE_SIZE);
 
   return (
-    <Modal opened={opened} onClose={onClose} title="API Request Logs" size="90%">
+    <Modal opened={opened} onClose={onClose} title="API Request Logs" size="90%" fullScreen={isMobile}>
       {isLoading && <Loader />}
       {isError && (
         <Alert icon={<IconAlertCircle size="1rem" />} title="Error!" color="red">
@@ -106,25 +109,27 @@ export function ApiRequestLogModal({ opened, onClose, projectId }: ApiRequestLog
       )}
       {!isLoading && !isError && (
         <>
-          <Table striped highlightOnHover withTableBorder>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th style={{ width: 40 }} />
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Timestamp</Table.Th>
-                <Table.Th>Model</Table.Th>
-                <Table.Th>Input Tokens</Table.Th>
-                <Table.Th>Output Tokens</Table.Th>
-                <Table.Th>Cost ($)</Table.Th>
-                <Table.Th>Latency (ms)</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {logs.map((log) => (
-                <LogRow key={log.id} log={log} />
-              ))}
-            </Table.Tbody>
-          </Table>
+          <ScrollArea>
+            <Table striped highlightOnHover withTableBorder style={{ minWidth: 700 }}>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th style={{ width: 40 }} />
+                  <Table.Th>Status</Table.Th>
+                  <Table.Th>Timestamp</Table.Th>
+                  <Table.Th>Model</Table.Th>
+                  <Table.Th>Input Tokens</Table.Th>
+                  <Table.Th>Output Tokens</Table.Th>
+                  <Table.Th>Cost ($)</Table.Th>
+                  <Table.Th>Latency (ms)</Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {logs.map((log) => (
+                  <LogRow key={log.id} log={log} />
+                ))}
+              </Table.Tbody>
+            </Table>
+          </ScrollArea>
           {logs.length === 0 && (
             <Text c="dimmed" ta="center" p="md">
               No API requests have been logged for this project.
