@@ -145,7 +145,7 @@ export function StepConfirmLinks({ project }: StepProps) {
                   onChange={(event) => setFilterText(event.currentTarget.value)}
                   mb="md"
                 />
-                <ScrollArea h={400}>
+                <ScrollArea h={{ base: 250, sm: 350, md: 400 }}>
                   <Checkbox.Group value={selectedUrls} onChange={setSelectedUrls}>
                     <Stack gap="xs">
                       {paginatedUrls.map((url) => {
