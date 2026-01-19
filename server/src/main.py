@@ -199,13 +199,16 @@ async def spa_fallback(path: str | None = None) -> ASGIFileResponse:
     Serves the index.html file for all non-API and non-asset routes.
     This is the catch-all for the Single-Page Application.
 
-    Note: We don't set 'filename' parameter as some mobile browsers (especially
-    iOS Safari/WebKit, which Chrome on iOS uses) may interpret it as a download
-    suggestion even with inline content disposition.
+    Note: We must explicitly set content_disposition_type="inline" because
+    ASGIFileResponse defaults to "attachment", which causes mobile browsers
+    to download the HTML file instead of rendering it. We intentionally omit
+    the 'filename' parameter as iOS Safari/WebKit may interpret it as a
+    download suggestion.
     """
     return ASGIFileResponse(
         file_path=CLIENT_BUILD_DIR / "index.html",
         media_type="text/html",
+        content_disposition_type="inline",
     )
 
 
